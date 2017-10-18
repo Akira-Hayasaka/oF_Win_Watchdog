@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxOsc.h"
+#include "ofxXmlSettings.h"
 
 #include <tlhelp32.h>
 #include <locale> 
@@ -40,4 +41,6 @@ private:
 	float lastRespondTime;
 	string pathToBoot;
 	string nameToKill;
+	string exe_name;
+	float ping_wait_interval_sec;
 };

@@ -6,7 +6,12 @@ void ofApp::setup()
 	ofSetFrameRate(30);
 	ofLogToFile("log/watchdog.log");
 
-	receiver.setup(9000);
+	ofxXmlSettings xml;
+	xml.load("setting/watchdog.xml");
+	exe_name = xml.getValue("exe_name", "");
+	receiver.setup(xml.getValue("communication_port", 0));
+	ping_wait_interval_sec = xml.getValue("ping_wait_interval_sec", 1.0);
+	xml.clear();
 	lastRespondTime = ofGetElapsedTimef();
 	lastBootTime = ofGetElapsedTimef();
 	bBooting = false;
@@ -79,7 +84,7 @@ void ofApp::update()
 
 	if (pathToBoot != "" && !bManualBoot)
 	{
-		if (!bBooting && ofGetElapsedTimef() - lastRespondTime > 1.0)
+		if (!bBooting && ofGetElapsedTimef() - lastRespondTime > ping_wait_interval_sec)
 		{
 			termApp(nameToKill);
 			bootApp(pathToBoot);
@@ -134,7 +139,7 @@ void ofApp::termApp(const string appName)
 
 void ofApp::bootApp(const string path)
 {
-	if (!isProcessRunning("UI.exe"))
+	if (!isProcessRunning(exe_name))
 	{
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 		STARTUPINFO si;
