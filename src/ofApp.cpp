@@ -89,9 +89,10 @@ void ofApp::update()
 	{
 		if (!bBooting && ofGetElapsedTimef() - lastRespondTime > ping_wait_interval_sec)
 		{
+			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << pathToBoot;
 			termApp(nameToKill);
+			ofSleepMillis(1000 * 1.5);
 			bootApp(pathToBoot);
-			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart!";
 		}
 	}
 }
@@ -172,6 +173,8 @@ void ofApp::bootApp(const string path)
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
+	else
+		ofLogError() << "still process " << exe_name << " running. fail to boot app.";
 }
 
 bool ofApp::isProcessRunning(const string procName)
