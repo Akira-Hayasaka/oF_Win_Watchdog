@@ -34,7 +34,7 @@ void ofApp::update()
 			bBooting = false;
 		}
 
-		// ui app wants me to die
+		// someone wants me to die
 		if (m.getAddress() == "/killyou")
 		{
 			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "killyou";
