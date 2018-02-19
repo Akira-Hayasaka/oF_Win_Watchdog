@@ -21,6 +21,9 @@ void ofApp::setup()
 
 void ofApp::update() 
 {
+	HWND AppWindow = GetActiveWindow();
+	SetWindowPos(AppWindow, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+
 	while (receiver.hasWaitingMessages())
 	{
 		ofxOscMessage m;
