@@ -91,7 +91,7 @@ void ofApp::update()
 		{
 			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << pathToBoot;
 			termApp(nameToKill);
-			ofSleepMillis(1000 * 1.5);
+			ofSleepMillis(1000 * 5);
 			bootApp(pathToBoot);
 		}
 	}
