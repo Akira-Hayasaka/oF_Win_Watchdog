@@ -56,6 +56,7 @@ void WatchDogResponder::setup()
 	}
 
 	//ofAddListener(Globals::killWatchDogEvent, this, &WatchDogResponder::killWatchDog);
+	//ofAddListener(Globals::poweroff_event, this, &WatchDogResponder::poweroff);
 }
 
 void WatchDogResponder::update()
@@ -73,6 +74,15 @@ void WatchDogResponder::update()
 			lastPingTime = Globals::ELAPSED_TIME;
 		}
 	}
+}
+
+void WatchDogResponder::poweroff()
+{
+	ofxOscMessage m;
+	m.setAddress("/poweroff");
+	watchDogSender.sendMessage(m, false);
+	bUseWatchDog = false;
+	ofLog() << "poweroff";
 }
 
 void WatchDogResponder::killWatchDog()
@@ -138,7 +148,7 @@ void WatchDogResponder::bootApp(const string path)
 		&si,
 		&pi);
 
-	// Close process and thread handles. 
+	// Close process and thread handles.
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 }

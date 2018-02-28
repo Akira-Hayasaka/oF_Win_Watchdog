@@ -83,6 +83,30 @@ void ofApp::update()
 			ExitWindowsEx(EWX_REBOOT | EWX_FORCE | EWX_FORCEIFHUNG, 0);
 			ofExit();
 		}
+		if (m.getAddress() == "/poweroff")
+		{
+			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "force reboot machine";
+
+			termApp(nameToKill);
+
+			HANDLE hToken;
+			TOKEN_PRIVILEGES TokenPri;
+
+			if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken) == FALSE)
+				ofLogFatalError("reboot machine") << "fail to open process token";
+
+			if (LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &TokenPri.Privileges[0].Luid) == FALSE)
+				ofLogFatalError("reboot machine") << "fail to get LUID";
+
+			TokenPri.PrivilegeCount = 1;
+			TokenPri.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+			AdjustTokenPrivileges(hToken, FALSE, &TokenPri, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+			if (GetLastError() != ERROR_SUCCESS)
+				ofLogFatalError("reboot machine") << "fail to authorize reboot";
+
+			ExitWindowsEx(EWX_POWEROFF | EWX_FORCE | EWX_FORCEIFHUNG, 0);
+			ofExit();
+		}
 	}
 
 	if (pathToBoot != "" && !bManualBoot)

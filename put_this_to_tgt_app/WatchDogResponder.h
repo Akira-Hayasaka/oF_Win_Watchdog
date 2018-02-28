@@ -7,7 +7,7 @@
 #include "Constants.h"
 
 #include <tlhelp32.h>
-#include <locale> 
+#include <locale>
 #include <codecvt>
 #include <windows.h>
 
@@ -20,6 +20,7 @@ public:
 
 private:
 
+	void poweroff();
 	void killWatchDog();
 	bool isProcessRunning(const string procName);
 	void bootApp(const string path);
