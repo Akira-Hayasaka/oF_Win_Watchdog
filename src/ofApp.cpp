@@ -1,4 +1,4 @@
-#include "ofApp.h"
+﻿#include "ofApp.h"
 
 void ofApp::setup() 
 {
@@ -115,7 +115,9 @@ void ofApp::update()
 		{
 			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << pathToBoot;
 			termApp(nameToKill);
-			ofSleepMillis(1000 * 5);
+			ofSleepMillis(1000 * 3);
+			closeWER(nameToKill);
+			ofSleepMillis(1000 * 3);
 			bootApp(pathToBoot);
 		}
 	}
@@ -163,6 +165,23 @@ void ofApp::termApp(const string appName)
 	}
 
 	CloseHandle(snapshot);
+}
+
+void ofApp::closeWER(const string appName)
+{
+	string s1 = appName;
+	wstring ws;
+	ws = s2ws(s1);
+	LPCTSTR pS2 = ws.c_str();
+	HWND hWnd = FindWindow(NULL, pS2);
+	if (hWnd != NULL)
+	{
+		//DestroyWindow(hWnd);
+		SendMessage(hWnd, WM_CLOSE, 0, 0);
+		ofLogNotice("closeWER") << "close " << pS2 << " window";
+	}
+	else
+		ofLogNotice("closeWER") << "couldnt find " << appName << " window";
 }
 
 void ofApp::bootApp(const string path)
