@@ -11,6 +11,7 @@ void ofApp::setup()
 	exe_name = xml.getValue("exe_name", "");
 	receiver.setup(xml.getValue("communication_port", 0));
 	ping_wait_interval_sec = xml.getValue("ping_wait_interval_sec", 1.0);
+	terminate_closealert_boot_interval = xml.getValue("terminate_closealert_boot_interval", 1.0);
 	xml.clear();
 	last_respond_time = ofGetElapsedTimef();
 	last_boot_time = ofGetElapsedTimef();
@@ -115,9 +116,9 @@ void ofApp::update()
 		{
 			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << path_to_boot;
 			terminate_app(name_to_kill);
-			ofSleepMillis(1000 * 3);
-			terminate_app(name_to_kill);
-			ofSleepMillis(1000 * 3);
+			ofSleepMillis(1000 * terminate_closealert_boot_interval);
+			close_alert_dialog(name_to_kill);
+			ofSleepMillis(1000 * terminate_closealert_boot_interval);
 			boot_app(path_to_boot);
 		}
 	}
@@ -127,9 +128,7 @@ void ofApp::draw()
 {
 	ofDrawBitmapStringHighlight("alive:" + ofToString(ofGetElapsedTimef()), 10, 20);
 	if (path_to_boot == "")
-	{
 		ofDrawBitmapStringHighlight("NO BOOT PATH", 10, 40);
-	}
 	else
 	{
 		if (b_booting)

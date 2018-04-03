@@ -25,12 +25,7 @@ private:
 	bool is_process_running(const string procName);
 
 	ofxOscReceiver receiver;
-	bool b_booting;
-	bool b_manual_boot;
-	float last_boot_time;
-	float last_respond_time;
-	string path_to_boot;
-	string name_to_kill;
-	string exe_name;
-	float ping_wait_interval_sec;
+	bool b_booting, b_manual_boot;
+	float last_boot_time, last_respond_time, ping_wait_interval_sec, terminate_closealert_boot_interval;
+	string path_to_boot, name_to_kill, exe_name;
 };
