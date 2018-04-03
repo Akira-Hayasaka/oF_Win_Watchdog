@@ -12,10 +12,10 @@ void ofApp::setup()
 	receiver.setup(xml.getValue("communication_port", 0));
 	ping_wait_interval_sec = xml.getValue("ping_wait_interval_sec", 1.0);
 	xml.clear();
-	lastRespondTime = ofGetElapsedTimef();
-	lastBootTime = ofGetElapsedTimef();
-	bBooting = false;
-	bManualBoot = false;
+	last_respond_time = ofGetElapsedTimef();
+	last_boot_time = ofGetElapsedTimef();
+	b_booting = false;
+	b_manual_boot = false;
 	ofSetWindowPosition(0, 0);
 }
 
@@ -31,10 +31,10 @@ void ofApp::update()
 
 		if (m.getAddress() == "/imok")
 		{
-			pathToBoot = m.getArgAsString(0);
-			nameToKill = m.getArgAsString(1);
-			lastRespondTime = ofGetElapsedTimef();
-			bBooting = false;
+			path_to_boot = m.getArgAsString(0);
+			name_to_kill = m.getArgAsString(1);
+			last_respond_time = ofGetElapsedTimef();
+			b_booting = false;
 		}
 
 		// someone wants me to die
@@ -47,23 +47,23 @@ void ofApp::update()
 		if (m.getAddress() == "/killapp")
 		{
 			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "/killapp";
-			termApp(nameToKill);
-			bManualBoot = true;
+			terminate_app(name_to_kill);
+			b_manual_boot = true;
 		}
 
 		if (m.getAddress() == "/startapp")
 		{
 			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "/startapp";
-			bootApp(pathToBoot);
-			bManualBoot = false;
-			lastRespondTime = ofGetElapsedTimef(); // reset 
-			bBooting = true;
+			boot_app(path_to_boot);
+			b_manual_boot = false;
+			last_respond_time = ofGetElapsedTimef(); // reset 
+			b_booting = true;
 		}
 		if (m.getAddress() == "/reboot")
 		{
 			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "force reboot machine";
 
-			termApp(nameToKill);
+			terminate_app(name_to_kill);
 
 			HANDLE hToken;
 			TOKEN_PRIVILEGES TokenPri;
@@ -87,7 +87,7 @@ void ofApp::update()
 		{
 			ofLogNotice(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "force reboot machine";
 
-			termApp(nameToKill);
+			terminate_app(name_to_kill);
 
 			HANDLE hToken;
 			TOKEN_PRIVILEGES TokenPri;
@@ -109,16 +109,16 @@ void ofApp::update()
 		}
 	}
 
-	if (pathToBoot != "" && !bManualBoot)
+	if (path_to_boot != "" && !b_manual_boot)
 	{
-		if (!bBooting && ofGetElapsedTimef() - lastRespondTime > ping_wait_interval_sec)
+		if (!b_booting && ofGetElapsedTimef() - last_respond_time > ping_wait_interval_sec)
 		{
-			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << pathToBoot;
-			termApp(nameToKill);
+			ofLogError(ofGetTimestampString("%Y.%m.%d.%H:%M.%S")) << "no ping from App. restart! " << path_to_boot;
+			terminate_app(name_to_kill);
 			ofSleepMillis(1000 * 3);
-			closeWER(nameToKill);
+			terminate_app(name_to_kill);
 			ofSleepMillis(1000 * 3);
-			bootApp(pathToBoot);
+			boot_app(path_to_boot);
 		}
 	}
 }
@@ -126,23 +126,23 @@ void ofApp::update()
 void ofApp::draw() 
 {
 	ofDrawBitmapStringHighlight("alive:" + ofToString(ofGetElapsedTimef()), 10, 20);
-	if (pathToBoot == "")
+	if (path_to_boot == "")
 	{
 		ofDrawBitmapStringHighlight("NO BOOT PATH", 10, 40);
 	}
 	else
 	{
-		if (bBooting)
+		if (b_booting)
 			ofDrawBitmapStringHighlight("BOOTING", 10, 40);
-		ofDrawBitmapStringHighlight(pathToBoot, 10, 60);
+		ofDrawBitmapStringHighlight(path_to_boot, 10, 60);
 	}
 
 }
 
-void ofApp::termApp(const string appName)
+void ofApp::terminate_app(const string appName)
 {
-	bBooting = true;
-	lastBootTime = ofGetElapsedTimef();
+	b_booting = true;
+	last_boot_time = ofGetElapsedTimef();
 
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 	PROCESSENTRY32 entry;
@@ -167,11 +167,23 @@ void ofApp::termApp(const string appName)
 	CloseHandle(snapshot);
 }
 
-void ofApp::closeWER(const string appName)
+void ofApp::close_alert_dialog(const string appName)
 {
+	auto conv_string_2_wstring = [](const string& s) -> wstring
+	{
+		int len;
+		int slength = (int)s.length() + 1;
+		len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+		wchar_t* buf = new wchar_t[len];
+		MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+		std::wstring r(buf);
+		delete[] buf;
+		return r;
+	};
+
 	string s1 = appName;
 	wstring ws;
-	ws = s2ws(s1);
+	ws = conv_string_2_wstring(s1);
 	LPCTSTR pS2 = ws.c_str();
 	HWND hWnd = FindWindow(NULL, pS2);
 	if (hWnd != NULL)
@@ -184,9 +196,9 @@ void ofApp::closeWER(const string appName)
 		ofLogNotice("closeWER") << "couldnt find " << appName << " window";
 }
 
-void ofApp::bootApp(const string path)
+void ofApp::boot_app(const string path)
 {
-	if (!isProcessRunning(exe_name))
+	if (!is_process_running(exe_name))
 	{
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 		STARTUPINFO si;
@@ -220,7 +232,7 @@ void ofApp::bootApp(const string path)
 		ofLogError() << "still process " << exe_name << " running. fail to boot app.";
 }
 
-bool ofApp::isProcessRunning(const string procName)
+bool ofApp::is_process_running(const string procName)
 {
 	bool bFound = false;
 
@@ -248,15 +260,3 @@ bool ofApp::isProcessRunning(const string procName)
 	return bFound;
 
 }
-
-void ofApp::keyPressed(int key) {}
-void ofApp::keyReleased(int key) {}
-void ofApp::mouseMoved(int x, int y) {}
-void ofApp::mouseDragged(int x, int y, int button) {}
-void ofApp::mousePressed(int x, int y, int button) {}
-void ofApp::mouseReleased(int x, int y, int button) {}
-void ofApp::mouseEntered(int x, int y) {}
-void ofApp::mouseExited(int x, int y) {}
-void ofApp::windowResized(int w, int h) {}
-void ofApp::gotMessage(ofMessage msg) {}
-void ofApp::dragEvent(ofDragInfo dragInfo) {}
