@@ -1,19 +1,19 @@
-#include "WatchDogResponder.h"
+#include "WatchDog_Responder.h"
 
-void WatchDogResponder::setup()
+void WatchDog_Responder::setup()
 {
-	bUseWatchDog = false;
-	lastPingTime = Globals::ELAPSED_TIME;
+	b_use_watchdog = false;
+	last_ping_time = Globals::ELAPSED_TIME;
 
 	watchDogSender.setup("localhost", WATCHDOG_PORT);
 
 	ofxXmlSettings xml;
 	xml.load("package.xml");
-	bUseWatchDog = (xml.getValue("useWatchDog", "") == "true") ? true : false;
+	b_use_watchdog = (xml.getValue("useWatchDog", "") == "true") ? true : false;
 	string watchDogPath = xml.getValue("watchDogPath", "");
 	xml.clear();
 
-	if (bUseWatchDog && !isProcessRunning("Watchdog.exe"))
+	if (b_use_watchdog && !is_process_running("Watchdog.exe"))
 	{
 		ofDirectory dir;
 		dir.open(watchDogPath);
@@ -30,7 +30,7 @@ void WatchDogResponder::setup()
 				ofStringReplace(bootPath, "/", "\\\\");
 
 				// boot watchdog
-				bootApp(bootPath);
+				boot_app(bootPath);
 				break;
 			}
 		}
@@ -47,56 +47,56 @@ void WatchDogResponder::setup()
 	{
 		if (f.getExtension() == "exe")
 		{
-			myExeName = f.getFileName();
-			myExePath = f.getAbsolutePath();
-			ofStringReplace(myExePath, "\\", "\\\\");
-			ofStringReplace(myExePath, "/", "\\\\");
+			my_exe_name = f.getFileName();
+			my_exe_path = f.getAbsolutePath();
+			ofStringReplace(my_exe_path, "\\", "\\\\");
+			ofStringReplace(my_exe_path, "/", "\\\\");
 			break;
 		}
 	}
 
-	//ofAddListener(Globals::killWatchDogEvent, this, &WatchDogResponder::killWatchDog);
-	//ofAddListener(Globals::poweroff_event, this, &WatchDogResponder::poweroff);
+	//ofAddListener(Globals::kill_watchdogEvent, this, &WatchDog_Responder::kill_watchdog);
+	//ofAddListener(Globals::poweroff_event, this, &WatchDog_Responder::poweroff);
 }
 
-void WatchDogResponder::update()
+void WatchDog_Responder::update()
 {
 	// ping to watchDog
-	if (bUseWatchDog)
+	if (b_use_watchdog)
 	{
-		if (Globals::ELAPSED_TIME - lastPingTime > 0.5)
+		if (Globals::ELAPSED_TIME - last_ping_time > 0.5)
 		{
 			ofxOscMessage m;
 			m.setAddress("/imok");
-			m.addStringArg(myExePath);
-			m.addStringArg(myExeName);
+			m.addStringArg(my_exe_path);
+			m.addStringArg(my_exe_name);
 			watchDogSender.sendMessage(m, false);
-			lastPingTime = Globals::ELAPSED_TIME;
+			last_ping_time = Globals::ELAPSED_TIME;
 		}
 	}
 }
 
-void WatchDogResponder::poweroff()
+void WatchDog_Responder::poweroff()
 {
 	ofxOscMessage m;
 	m.setAddress("/poweroff");
 	watchDogSender.sendMessage(m, false);
-	bUseWatchDog = false;
+	b_use_watchdog = false;
 	ofLog() << "poweroff";
 }
 
-void WatchDogResponder::killWatchDog()
+void WatchDog_Responder::kill_watchdog()
 {
 	ofxOscMessage m;
 	m.setAddress("/killyou");
 	watchDogSender.sendMessage(m, false);
-	bUseWatchDog = false;
-	ofLog() << "killWatchDog";
+	b_use_watchdog = false;
+	ofLog() << "kill_watchdog";
 }
 
-bool WatchDogResponder::isProcessRunning(const string procName)
+bool WatchDog_Responder::is_process_running(const string proc_name)
 {
-	bool bFound = false;
+	bool b_found = false;
 
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 	PROCESSENTRY32 entry;
@@ -108,10 +108,10 @@ bool WatchDogResponder::isProcessRunning(const string procName)
 	{
 		while (Process32Next(snapshot, &entry) == TRUE)
 		{
-			wstring wProcName = cv.from_bytes(procName);
-			if (wcscmp(entry.szExeFile, wProcName.c_str()) == 0)
+			wstring w_proc_name = cv.from_bytes(proc_name);
+			if (wcscmp(entry.szExeFile, w_proc_name.c_str()) == 0)
 			{
-				bFound = true;
+				b_found = true;
 				break;
 			}
 		}
@@ -119,10 +119,10 @@ bool WatchDogResponder::isProcessRunning(const string procName)
 
 	CloseHandle(snapshot);
 
-	return bFound;
+	return b_found;
 }
 
-void WatchDogResponder::bootApp(const string path)
+void WatchDog_Responder::boot_app(const string path)
 {
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 	STARTUPINFO si;

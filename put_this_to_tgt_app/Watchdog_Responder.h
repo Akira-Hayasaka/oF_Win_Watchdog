@@ -11,7 +11,7 @@
 #include <codecvt>
 #include <windows.h>
 
-class WatchDogResponder
+class WatchDog_Responder
 {
 public:
 
@@ -21,13 +21,12 @@ public:
 private:
 
 	void poweroff();
-	void killWatchDog();
-	bool isProcessRunning(const string procName);
-	void bootApp(const string path);
+	void kill_watchdog();
+	bool is_process_running(const string proc_name);
+	void boot_app(const string path);
 
 	ofxOscSender watchDogSender;
-	bool bUseWatchDog;
-	float lastPingTime;
-	string myExePath;
-	string myExeName;
+	bool b_use_watchdog;
+	float last_ping_time;
+	string my_exe_path, my_exe_name;
 };
