@@ -1,6 +1,12 @@
 # oF_Win_Watchdog #
 
+### dependency
+
+ofxOsc
+ofxXmlSettings
+
 ### usage ###
+
 #### 1.
 
 compile watchdog
