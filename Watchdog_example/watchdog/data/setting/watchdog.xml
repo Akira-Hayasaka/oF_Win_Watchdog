@@ -1,0 +1,8 @@
+<!-- exe base name (w/o .exe) -->
+<exe_name>Watchdog_example</exe_name>
+<!-- watchdog <=> app com port -->
+<communication_port>9000</communication_port>
+<!-- watchdog <=> app polling interval for life monitoring -->
+<ping_wait_interval_sec>5.0</ping_wait_interval_sec>
+<!-- dont care about this. 2.0 sec is usually OK -->
+<terminate_closealert_boot_interval>2.0</terminate_closealert_boot_interval>

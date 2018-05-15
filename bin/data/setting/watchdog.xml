@@ -1,4 +1,0 @@
-<exe_name></exe_name>
-<communication_port>9000</communication_port>
-<ping_wait_interval_sec>5.0</ping_wait_interval_sec>
-<terminate_closealert_boot_interval>2.0</terminate_closealert_boot_interval>
