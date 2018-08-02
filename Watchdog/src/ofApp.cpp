@@ -100,14 +100,14 @@ void ofApp::terminate_app(const string appName)
 	last_boot_time = ofGetElapsedTimef();
 
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
-	PROCESSENTRY32 entry;
+	PROCESSENTRY32W entry;
 	entry.dwSize = sizeof(PROCESSENTRY32);
 
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-	if (Process32First(snapshot, &entry) == TRUE)
+	if (Process32FirstW(snapshot, &entry) == TRUE)
 	{
-		while (Process32Next(snapshot, &entry) == TRUE)
+		while (Process32NextW(snapshot, &entry) == TRUE)
 		{
 			wstring wProcName = cv.from_bytes(appName);
 			if (wcscmp(entry.szExeFile, wProcName.c_str()) == 0)
@@ -139,8 +139,8 @@ void ofApp::close_alert_dialog(const string appName)
 	string s1 = appName;
 	wstring ws;
 	ws = conv_string_2_wstring(s1);
-	LPCTSTR pS2 = ws.c_str();
-	HWND hWnd = FindWindow(NULL, pS2);
+	LPCWSTR pS2 = ws.c_str();
+	HWND hWnd = FindWindowW(NULL, pS2);
 	if (hWnd != NULL)
 	{
 		//DestroyWindow(hWnd);
@@ -156,7 +156,7 @@ void ofApp::boot_app(const string path)
 	if (!is_process_running(exe_name))
 	{
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
-		STARTUPINFO si;
+		STARTUPINFOW si;
 		PROCESS_INFORMATION pi;
 
 		ZeroMemory(&si, sizeof(si));
@@ -192,14 +192,14 @@ bool ofApp::is_process_running(const string procName)
 	bool bFound = false;
 
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
-	PROCESSENTRY32 entry;
-	entry.dwSize = sizeof(PROCESSENTRY32);
+	PROCESSENTRY32W entry;
+	entry.dwSize = sizeof(PROCESSENTRY32W);
 
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-	if (Process32First(snapshot, &entry) == TRUE)
+	if (Process32FirstW(snapshot, &entry) == TRUE)
 	{
-		while (Process32Next(snapshot, &entry) == TRUE)
+		while (Process32NextW(snapshot, &entry) == TRUE)
 		{
 			wstring wProcName = cv.from_bytes(procName);
 			if (wcscmp(entry.szExeFile, wProcName.c_str()) == 0)
