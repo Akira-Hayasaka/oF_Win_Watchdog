@@ -103,7 +103,7 @@ private:
 	void boot_watchdog(const string path)
 	{
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
-		STARTUPINFO si;
+		STARTUPINFOW si;
 		PROCESS_INFORMATION pi;
 
 		ZeroMemory(&si, sizeof(si));
@@ -136,14 +136,14 @@ private:
 		bool b_found = false;
 
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
-		PROCESSENTRY32 entry;
-		entry.dwSize = sizeof(PROCESSENTRY32);
+		PROCESSENTRY32W entry;
+		entry.dwSize = sizeof(PROCESSENTRY32W);
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-		if (Process32First(snapshot, &entry) == TRUE)
+		if (Process32FirstW(snapshot, &entry) == TRUE)
 		{
-			while (Process32Next(snapshot, &entry) == TRUE)
+			while (Process32NextW(snapshot, &entry) == TRUE)
 			{
 				wstring w_proc_name = cv.from_bytes(proc_name);
 				if (wcscmp(entry.szExeFile, w_proc_name.c_str()) == 0)
