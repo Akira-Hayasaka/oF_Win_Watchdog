@@ -137,7 +137,7 @@ private:
 
 		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
 		PROCESSENTRY32W entry;
-		entry.dwSize = sizeof(PROCESSENTRY32W);
+		entry.dwSize = sizeof(PROCESSENTRY32);
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
