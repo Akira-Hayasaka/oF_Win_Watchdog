@@ -4,7 +4,7 @@ void ofApp::setup()
 {
 	ofBackground(ofColor::black);
 	ofSetFrameRate(30);
-	ofLogToFile("log/watchdog.log");
+	ofLogToFile("log/watchdog.log", true);
 
 	ofxXmlSettings xml;
 	xml.load("setting/watchdog.xml");

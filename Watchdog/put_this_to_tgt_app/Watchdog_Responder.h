@@ -18,7 +18,7 @@ public:
 		last_ping_time = ofGetElapsedTimef();
 		watchdog_sender.setup("localhost", _watchdog_port);
 
-		if (b_use_watchdog && !is_process_running("Watchdog.exe"))
+		if (b_use_watchdog && !is_process_running(L"Watchdog.exe"))
 		{
 			ofDirectory dir;
 			dir.open(_watchdog_app_path);
@@ -83,7 +83,7 @@ public:
 	void poweroff()
 	{
 		ofxOscMessage m;
-		m.setAddress("/poweroff");
+		m.setAddress("/poweroff_machine");
 		watchdog_sender.sendMessage(m, false);
 		b_use_watchdog = false;
 		ofLog() << "poweroff";
@@ -92,7 +92,7 @@ public:
 	void kill_watchdog()
 	{
 		ofxOscMessage m;
-		m.setAddress("/killyou");
+		m.setAddress("/kill_watchdog");
 		watchdog_sender.sendMessage(m, false);
 		b_use_watchdog = false;
 		ofLog() << "kill_watchdog";
@@ -131,32 +131,21 @@ private:
 		CloseHandle(pi.hThread);
 	}
 
-	bool is_process_running(const string proc_name)
+	bool is_process_running(const wchar_t *processName)
 	{
-		bool b_found = false;
-
-		wstring_convert<codecvt_utf8<wchar_t>, wchar_t> cv;
+		bool exists = false;
 		PROCESSENTRY32W entry;
-		entry.dwSize = sizeof(PROCESSENTRY32);
+		entry.dwSize = sizeof(PROCESSENTRY32W);
 
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-		if (Process32FirstW(snapshot, &entry) == TRUE)
-		{
-			while (Process32NextW(snapshot, &entry) == TRUE)
-			{
-				wstring w_proc_name = cv.from_bytes(proc_name);
-				if (wcscmp(entry.szExeFile, w_proc_name.c_str()) == 0)
-				{
-					b_found = true;
-					break;
-				}
-			}
-		}
+		if (Process32FirstW(snapshot, &entry))
+			while (Process32NextW(snapshot, &entry))
+				if (!wcsicmp(entry.szExeFile, processName))
+					exists = true;
 
 		CloseHandle(snapshot);
-
-		return b_found;
+		return exists;
 	}
 
 	ofxOscSender watchdog_sender;
