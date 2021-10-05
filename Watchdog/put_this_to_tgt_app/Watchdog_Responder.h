@@ -155,7 +155,6 @@ private:
 		m.addStringArg(my_exe_name);
 		watchdog_sender.sendMessage(m, false);
 		last_ping_time = ofGetElapsedTimef();
-		ofLog() << "send_imok";
 	}
 
 	ofxOscSender watchdog_sender;
