@@ -39,6 +39,8 @@ public:
 					break;
 				}
 			}
+
+			ofSleepMillis(1000 * 2.0);
 		}
 
 		// my exe path
@@ -60,6 +62,8 @@ public:
 			}
 		}
 
+		send_imok();
+
 		ofAddListener(ofEvents().update, this, &WatchDog_Responder::update);
 	}
 
@@ -70,12 +74,7 @@ public:
 		{
 			if (ofGetElapsedTimef() - last_ping_time > 0.5)
 			{
-				ofxOscMessage m;
-				m.setAddress("/imok");
-				m.addStringArg(my_exe_path);
-				m.addStringArg(my_exe_name);
-				watchdog_sender.sendMessage(m, false);
-				last_ping_time = ofGetElapsedTimef();
+				send_imok();
 			}
 		}
 	}
@@ -146,6 +145,17 @@ private:
 
 		CloseHandle(snapshot);
 		return exists;
+	}
+
+	void send_imok()
+	{
+		ofxOscMessage m;
+		m.setAddress("/imok");
+		m.addStringArg(my_exe_path);
+		m.addStringArg(my_exe_name);
+		watchdog_sender.sendMessage(m, false);
+		last_ping_time = ofGetElapsedTimef();
+		ofLog() << "send_imok";
 	}
 
 	ofxOscSender watchdog_sender;
